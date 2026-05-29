@@ -19,6 +19,7 @@ export interface MoveTask {
   status: TaskStatus;
   priority: Priority;
   notes: string;
+  completionCriteria?: string[];
   dueDate?: string;
 }
 

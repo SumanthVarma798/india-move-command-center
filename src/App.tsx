@@ -12,6 +12,7 @@ import { PhonePage } from './pages/PhonePage';
 import { TravelVisaPage } from './pages/TravelVisaPage';
 import { loadSharedDashboard, saveSharedDashboard } from './services/supabase';
 import type { AppData, DecisionStatus, DocumentStatus, TaskStatus } from './types';
+import { hydrateAppData } from './utils/dataMerge';
 
 function App() {
   const [activePage, setActivePage] = useState('home');
@@ -46,7 +47,7 @@ function App() {
     }
 
     if (remoteData) {
-      const loadedData = remoteData as AppData;
+      const loadedData = hydrateAppData(remoteData as AppData);
       lastRemoteJson.current = JSON.stringify(loadedData);
       setData(loadedData);
       setSyncStatus('Loaded from Supabase');
@@ -96,7 +97,7 @@ function App() {
   }
 
   function importData(nextData: AppData) {
-    setData({ ...initialData, ...nextData, meta: { ...initialData.meta, ...nextData.meta } });
+    setData(hydrateAppData({ ...initialData, ...nextData, meta: { ...initialData.meta, ...nextData.meta } }));
   }
 
   function updateTaskStatus(id: string, status: TaskStatus) {

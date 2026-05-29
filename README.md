@@ -11,6 +11,12 @@ npm install
 npm run dev
 ```
 
+Supabase sync is configured through Vite environment variables. The public project URL and publishable key are safe for browser use, while direct database connection strings and service-role keys must never be committed.
+
+```bash
+cp .env.example .env.local
+```
+
 ## Build
 
 ```bash
@@ -30,9 +36,19 @@ The Vite base path is computed from `GITHUB_REPOSITORY` during the Pages build, 
 
 ## Updating Data
 
-Initial seed data lives in `src/data/initialData.ts`. Browser changes are saved to `localStorage`, so daily progress stays on the device where you use the dashboard.
+Initial seed data lives in `src/data/initialData.ts`. Browser changes are saved to `localStorage`, so daily progress stays on the device where you use the dashboard. If you sign in with email, the dashboard also syncs one JSON state row to Supabase for your authenticated user.
 
 To change the default data for everyone, edit `src/data/initialData.ts` and redeploy. To change only your current browser state, use the dashboard controls.
+
+## Supabase Setup
+
+Run the SQL migration in `supabase/migrations/` against the Supabase project. It creates a `dashboard_states` table with row-level security so each signed-in user can only read and write their own dashboard state.
+
+In Supabase Auth settings, add the GitHub Pages URL to allowed redirect URLs:
+
+```text
+https://sumanthvarma798.github.io/india-move-command-center/
+```
 
 ## Export / Import Backup
 

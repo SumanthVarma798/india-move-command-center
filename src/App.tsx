@@ -13,27 +13,23 @@ import { PhonePage } from './pages/PhonePage';
 import { TravelVisaPage } from './pages/TravelVisaPage';
 import { loadRemoteDashboard, saveRemoteDashboard, supabase } from './services/supabase';
 import type { AppData, DecisionStatus, DocumentStatus, TaskStatus } from './types';
-import { loadData, resetData, saveData } from './utils/storage';
 
 function App() {
   const [activePage, setActivePage] = useState('home');
-  const [data, setData] = useState<AppData>(() => loadData());
+  const [data, setData] = useState<AppData | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [remoteReady, setRemoteReady] = useState(false);
-  const [syncStatus, setSyncStatus] = useState('Local only');
+  const [syncStatus, setSyncStatus] = useState('Sign in required');
   const lastRemoteJson = useRef('');
-
-  useEffect(() => {
-    saveData(data);
-  }, [data]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: authData }) => setSession(authData.session));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
       if (!nextSession) {
+        setData(null);
         setRemoteReady(false);
-        setSyncStatus('Local only');
+        setSyncStatus('Sign in required');
         lastRemoteJson.current = '';
       }
     });
@@ -61,13 +57,15 @@ function App() {
         setData(row.data);
         setSyncStatus(`Loaded cloud copy${row.updated_at ? ` from ${new Date(row.updated_at).toLocaleString()}` : ''}`);
       } else {
-        const { error: saveError } = await saveRemoteDashboard(userId, data);
+        const seedData = { ...initialData, meta: { ...initialData.meta, lastUpdated: new Date().toISOString() } };
+        const { error: saveError } = await saveRemoteDashboard(userId, seedData);
         if (cancelled) return;
         if (saveError) {
           setSyncStatus(`Sync setup needed: ${saveError.message}`);
           return;
         }
-        lastRemoteJson.current = JSON.stringify(data);
+        setData(seedData);
+        lastRemoteJson.current = JSON.stringify(seedData);
         setSyncStatus('Created cloud copy');
       }
       setRemoteReady(true);
@@ -80,7 +78,7 @@ function App() {
 
   useEffect(() => {
     const userId = session?.user.id;
-    if (!userId || !remoteReady) return;
+    if (!userId || !remoteReady || !data) return;
 
     const nextJson = JSON.stringify(data);
     if (nextJson === lastRemoteJson.current) return;
@@ -104,55 +102,73 @@ function App() {
   }
 
   function updateTaskStatus(id: string, status: TaskStatus) {
+    if (!data) return;
     setData((current) => ({
-      ...current,
-      tasks: current.tasks.map((task) => (task.id === id ? { ...task, status } : task)),
-      afterLanding: current.afterLanding.map((task) => (task.id === id ? { ...task, status } : task)),
+      ...current!,
+      tasks: current!.tasks.map((task) => (task.id === id ? { ...task, status } : task)),
+      afterLanding: current!.afterLanding.map((task) => (task.id === id ? { ...task, status } : task)),
     }));
   }
 
   function updatePhoneStatus(id: string, status: TaskStatus) {
+    if (!data) return;
     setData((current) => ({
-      ...current,
-      phoneChecklist: current.phoneChecklist.map((item) => (item.id === id ? { ...item, status } : item)),
+      ...current!,
+      phoneChecklist: current!.phoneChecklist.map((item) => (item.id === id ? { ...item, status } : item)),
     }));
   }
 
   function updateDocumentStatus(id: string, status: DocumentStatus) {
+    if (!data) return;
     setData((current) => ({
-      ...current,
-      documents: current.documents.map((item) => (item.id === id ? { ...item, status } : item)),
+      ...current!,
+      documents: current!.documents.map((item) => (item.id === id ? { ...item, status } : item)),
     }));
   }
 
   function updateFinance(id: string, patch: { decision?: DecisionStatus; status?: TaskStatus }) {
+    if (!data) return;
     setData((current) => ({
-      ...current,
-      finance: current.finance.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+      ...current!,
+      finance: current!.finance.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     }));
   }
 
-  const pages: Record<string, ReactElement> = {
-    home: <HomeDashboard data={data} onTaskStatusChange={updateTaskStatus} />,
-    checklist: <ChecklistPage data={data} onTaskStatusChange={updateTaskStatus} />,
-    phone: <PhonePage data={data} onPhoneStatusChange={updatePhoneStatus} />,
-    travel: <TravelVisaPage data={data} onTaskStatusChange={updateTaskStatus} />,
-    documents: <DocumentsPage data={data} onDocumentStatusChange={updateDocumentStatus} />,
-    finance: <FinancePage data={data} onFinanceChange={updateFinance} />,
-    india: <AfterLandingPage data={data} onTaskStatusChange={updateTaskStatus} />,
-  };
+  const pages: Record<string, ReactElement> | null = data
+    ? {
+        home: <HomeDashboard data={data} onTaskStatusChange={updateTaskStatus} />,
+        checklist: <ChecklistPage data={data} onTaskStatusChange={updateTaskStatus} />,
+        phone: <PhonePage data={data} onPhoneStatusChange={updatePhoneStatus} />,
+        travel: <TravelVisaPage data={data} onTaskStatusChange={updateTaskStatus} />,
+        documents: <DocumentsPage data={data} onDocumentStatusChange={updateDocumentStatus} />,
+        finance: <FinancePage data={data} onFinanceChange={updateFinance} />,
+        india: <AfterLandingPage data={data} onTaskStatusChange={updateTaskStatus} />,
+      }
+    : null;
 
   return (
     <Shell activePage={activePage} setActivePage={setActivePage}>
       <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center print:hidden">
-        <p className="text-sm font-semibold text-slate-500">Local-first dashboard · Supabase sync optional · no sensitive documents</p>
-        <DataControls data={data} onImport={importData} onReset={() => setData(resetData())} />
+        <p className="text-sm font-semibold text-slate-500">Supabase-backed dashboard · sign-in required · no sensitive documents</p>
+        {data ? <DataControls data={data} onImport={importData} onReset={() => setData(initialData)} /> : null}
       </div>
       <div className="mb-6">
         <SyncPanel session={session} syncStatus={syncStatus} onSignOut={() => supabase.auth.signOut()} />
       </div>
-      {pages[activePage] ?? pages.home}
+      {pages ? pages[activePage] ?? pages.home : <AuthRequired />}
     </Shell>
+  );
+}
+
+function AuthRequired() {
+  return (
+    <section className="rounded-[2.5rem] border border-white/80 bg-white/75 p-8 shadow-glow backdrop-blur sm:p-12">
+      <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-600">Cloud dashboard</p>
+      <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-5xl">Sign in to load your move command center.</h2>
+      <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+        Task status is stored in Supabase for your authenticated account. This browser will not keep a local dashboard copy.
+      </p>
+    </section>
   );
 }
 

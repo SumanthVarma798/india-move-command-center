@@ -35,8 +35,8 @@ export function SyncPanel({ session, syncStatus, onSignOut }: { session: Session
 
   return (
     <div className="rounded-3xl border border-blue-200 bg-blue-50/80 p-4 text-sm text-blue-950 print:hidden">
-      <p className="font-bold">Optional Supabase sync</p>
-      <p className="mt-1 text-blue-800">Local changes persist on this device. Sign in to sync across devices.</p>
+      <p className="font-bold">Supabase sign-in required</p>
+      <p className="mt-1 text-blue-800">Your dashboard state is loaded from Supabase. This site does not save task progress in browser storage.</p>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <input
           type="email"

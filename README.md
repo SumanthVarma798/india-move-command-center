@@ -1,6 +1,6 @@
 # India Move Command Center
 
-A polished local-first React dashboard for the permanent move from the US to India on June 21, 2026.
+A polished Supabase-backed React dashboard for the permanent move from the US to India on June 21, 2026.
 
 This site is for status, checklists, reminders, and links only. Do not store passport scans, SSNs, account numbers, recovery codes, passwords, or private documents in this repo or in the browser data. Actual files stay in Google Drive. Secrets stay in a password manager.
 
@@ -36,7 +36,7 @@ The Vite base path is computed from `GITHUB_REPOSITORY` during the Pages build, 
 
 ## Updating Data
 
-Initial seed data lives in `src/data/initialData.ts`. Browser changes are saved to `localStorage`, so daily progress stays on the device where you use the dashboard. If you sign in with email, the dashboard also syncs one JSON state row to Supabase for your authenticated user.
+Initial seed data lives in `src/data/initialData.ts`. The app requires email sign-in and stores dashboard state in Supabase, one JSON row per authenticated user. It does not persist task progress in browser `localStorage`; Supabase Auth uses tab-scoped `sessionStorage` for the sign-in session.
 
 To change the default data for everyone, edit `src/data/initialData.ts` and redeploy. To change only your current browser state, use the dashboard controls.
 
@@ -52,6 +52,6 @@ https://sumanthvarma798.github.io/india-move-command-center/
 
 ## Export / Import Backup
 
-Use **Export JSON** to download a local backup of the dashboard state. Use **Import JSON** to restore that backup in another browser.
+Use **Export JSON** to download a backup of the dashboard state. Use **Import JSON** to restore that backup into your signed-in Supabase dashboard.
 
 The backup may contain notes you type into the dashboard later, so keep exports private and avoid adding sensitive data.

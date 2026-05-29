@@ -18,7 +18,7 @@ export function ChecklistPage({ data, onTaskStatusChange }: { data: AppData; onT
 
   return (
     <div>
-      <PageHeader kicker="Printable checklist" title="Final Departure Checklist" body="Filter, update, and print the operational checklist by phase. Completion status is saved locally in this browser." />
+      <PageHeader kicker="Printable checklist" title="Final Departure Checklist" body="Filter, update, and print the operational checklist by phase. Completion status is saved to Supabase for your signed-in account." />
       <div className="mb-5 grid gap-3 rounded-3xl bg-white/75 p-4 shadow-sm ring-1 ring-white/80 print:hidden sm:grid-cols-3">
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tasks" className="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" />
         <select value={priority} onChange={(e) => setPriority(e.target.value as Priority | 'all')} className="rounded-2xl border border-slate-200 px-4 py-3"><option value="all">All priorities</option><option value="critical">Critical</option><option value="high">High</option><option value="normal">Normal</option><option value="optional">Optional</option></select>

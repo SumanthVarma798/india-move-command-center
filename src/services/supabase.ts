@@ -5,7 +5,11 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? 'https://xqnswyjujcfxwp
 const supabasePublishableKey =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_roGAc63KzOxXPmUxUKc15g_4jbogH9E';
 
-export const supabase = createClient(supabaseUrl, supabasePublishableKey);
+export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
+  auth: {
+    storage: window.sessionStorage,
+  },
+});
 
 export interface DashboardStateRow {
   user_id: string;

@@ -11,20 +11,10 @@ export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   },
 });
 
-export interface DashboardStateRow {
-  user_id: string;
-  data: AppData;
-  updated_at: string;
+export async function loadSharedDashboard(password: string) {
+  return supabase.rpc('get_shared_dashboard', { shared_password: password });
 }
 
-export async function loadRemoteDashboard(userId: string) {
-  return supabase.from('dashboard_states').select('data, updated_at').eq('user_id', userId).maybeSingle<Pick<DashboardStateRow, 'data' | 'updated_at'>>();
-}
-
-export async function saveRemoteDashboard(userId: string, data: AppData) {
-  return supabase
-    .from('dashboard_states')
-    .upsert({ user_id: userId, data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
-    .select('updated_at')
-    .single<Pick<DashboardStateRow, 'updated_at'>>();
+export async function saveSharedDashboard(password: string, data: AppData) {
+  return supabase.rpc('save_shared_dashboard', { shared_password: password, dashboard_data: data });
 }

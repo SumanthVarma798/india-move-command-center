@@ -1,6 +1,6 @@
 # India Move Command Center
 
-A polished Supabase-backed React dashboard for the permanent move from the US to India on June 21, 2026.
+A polished shared Supabase-backed React dashboard for the permanent move from the US to India on June 21, 2026.
 
 This site is for status, checklists, reminders, and links only. Do not store passport scans, SSNs, account numbers, recovery codes, passwords, or private documents in this repo or in the browser data. Actual files stay in Google Drive. Secrets stay in a password manager.
 
@@ -36,15 +36,23 @@ The Vite base path is computed from `GITHUB_REPOSITORY` during the Pages build, 
 
 ## Updating Data
 
-Initial seed data lives in `src/data/initialData.ts`. The app requires email sign-in and stores dashboard state in Supabase, one JSON row per authenticated user. It does not persist task progress in browser `localStorage`; Supabase Auth uses tab-scoped `sessionStorage` for the sign-in session.
+Initial seed data lives in `src/data/initialData.ts`. The app uses a shared password and stores dashboard state in one shared Supabase JSON row. It does not persist task progress in browser `localStorage`; the shared password is remembered in tab-scoped `sessionStorage` so reloads in the same tab are simple.
 
 To change the default data for everyone, edit `src/data/initialData.ts` and redeploy. To change only your current browser state, use the dashboard controls.
 
 ## Supabase Setup
 
-Run the SQL migration in `supabase/migrations/` against the Supabase project. It creates a `dashboard_states` table with row-level security so each signed-in user can only read and write their own dashboard state.
+Run the SQL migrations in `supabase/migrations/` against the Supabase project. The current app uses `shared_dashboard_state` plus RPC functions that validate the shared password before reading or writing the tracker.
 
-In Supabase Auth settings, add the GitHub Pages URL to allowed redirect URLs:
+Rotate it in Supabase SQL with:
+
+```sql
+update public.shared_dashboard_state
+set password_hash = extensions.crypt('NEW_PASSWORD_HERE', extensions.gen_salt('bf'))
+where id = 'main';
+```
+
+Email Auth is not required for the shared-password version. If you re-enable Supabase Auth later, add the GitHub Pages URL to allowed redirect URLs:
 
 ```text
 https://sumanthvarma798.github.io/india-move-command-center/

@@ -2,13 +2,14 @@ import type { AppData } from '../types';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
 import { TaskRow } from '../components/TaskRow';
-import { allOperationalItems, daysUntil, percentDone, sortedUrgentTasks } from '../utils/progress';
+import { allOperationalItems, daysUntil, percentDone, sortedUrgentTasks, workstreamProgress } from '../utils/progress';
 import type { TaskStatus } from '../types';
 
 export function HomeDashboard({ data, onTaskStatusChange }: { data: AppData; onTaskStatusChange: (id: string, status: TaskStatus) => void }) {
   const countdown = daysUntil('2026-06-21');
   const progress = percentDone(allOperationalItems([...data.tasks, ...data.afterLanding], data.phoneChecklist));
   const priorities = sortedUrgentTasks([...data.tasks, ...data.afterLanding]);
+  const streams = workstreamProgress([...data.tasks, ...data.afterLanding], data.phoneChecklist).filter((stream) => stream.total > 0);
 
   return (
     <div>
@@ -24,6 +25,32 @@ export function HomeDashboard({ data, onTaskStatusChange }: { data: AppData; onT
             <div className="mt-4 h-2 rounded-full bg-slate-200"><div className="h-2 rounded-full bg-slate-950" style={{ width: `${progress}%` }} /></div>
           </MetricCard>
           <MetricCard label="Next Action" value="Now" detail={data.meta.nextAction} />
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <h3 className="text-xl font-bold">Progress by Workstream</h3>
+            <p className="mt-1 text-sm text-slate-500">Use this as the daily map: see which lane is blocked, waiting, or nearly done.</p>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {streams.map((stream) => (
+            <article key={stream.id} className="rounded-[2rem] border border-white/80 bg-white/80 p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h4 className="font-bold text-slate-950">{stream.label}</h4>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">{stream.description}</p>
+                </div>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700">{stream.percent}%</span>
+              </div>
+              <div className="mt-4 h-2 rounded-full bg-slate-200">
+                <div className="h-2 rounded-full bg-slate-950" style={{ width: `${stream.percent}%` }} />
+              </div>
+              <p className="mt-3 text-sm font-semibold text-slate-600">{stream.done}/{stream.total} done{stream.waiting ? ` · ${stream.waiting} waiting` : ''}</p>
+            </article>
+          ))}
         </div>
       </section>
 

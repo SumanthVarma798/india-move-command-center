@@ -48,9 +48,11 @@ function App() {
 
     if (remoteData) {
       const loadedData = hydrateAppData(remoteData as AppData);
-      lastRemoteJson.current = JSON.stringify(loadedData);
+      const remoteJson = JSON.stringify(remoteData);
+      const loadedJson = JSON.stringify(loadedData);
+      lastRemoteJson.current = remoteJson;
       setData(loadedData);
-      setSyncStatus('Loaded from Supabase');
+      setSyncStatus(remoteJson === loadedJson ? 'Loaded from Supabase' : 'Loaded from Supabase · updating structure');
     } else {
       const seedData = { ...initialData, meta: { ...initialData.meta, lastUpdated: new Date().toISOString() } };
       const { data: savedAt, error: saveError } = await saveSharedDashboard(password, seedData);

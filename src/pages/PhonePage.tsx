@@ -12,14 +12,18 @@ export function PhonePage({ data, onPhoneStatusChange }: { data: AppData; onPhon
           <dl className="mt-5 space-y-3 text-sm">
             <div className="flex justify-between gap-4"><dt className="text-slate-500">Device</dt><dd className="font-semibold">iPhone 15 Pro</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-slate-500">AT&T payoff remaining</dt><dd className="font-semibold">$194.37</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-slate-500">Bill target</dt><dd className="font-semibold">~$35 → ~$5/mo</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-slate-500">Current number</dt><dd className="font-semibold">US number ending 2901</dd></div>
           </dl>
+          <div className="mt-6 rounded-3xl bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+            Paying off now gives up the remaining 7 months of phone credits, but unlocks the device and enables a Tello move that should lower the monthly bill materially.
+          </div>
           <div className="mt-6 rounded-3xl bg-slate-50 p-4">
             <h4 className="font-bold">Plan</h4>
             <ol className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
               <li>1. Pay off phone.</li>
               <li>2. Unlock AT&T device.</li>
-              <li>3. Port to Tello or another cheap carrier.</li>
+              <li>3. Port to Tello.</li>
               <li>4. Enable WiFi calling.</li>
               <li>5. Test OTPs before departure.</li>
             </ol>

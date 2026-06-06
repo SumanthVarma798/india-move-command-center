@@ -60,6 +60,6 @@ https://sumanthvarma798.github.io/india-move-command-center/
 
 ## Export / Import Backup
 
-Use **Export JSON** to download a backup of the dashboard state. Use **Import JSON** to restore that backup into your signed-in Supabase dashboard.
+Use **Export JSON** to download a backup of the dashboard state. Use **Import JSON** to restore that backup into the shared Supabase dashboard.
 
 The backup may contain notes you type into the dashboard later, so keep exports private and avoid adding sensitive data.

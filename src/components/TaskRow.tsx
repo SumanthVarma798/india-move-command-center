@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import type { MoveTask, TaskStatus } from '../types';
+import { getTaskWorkstream, workstreams } from '../utils/progress';
 import { StatusBadge } from './StatusBadge';
 
 const statuses: TaskStatus[] = ['todo', 'in progress', 'waiting', 'done'];
 
 export function TaskRow({ task, onStatusChange }: { task: MoveTask; onStatusChange: (id: string, status: TaskStatus) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const stream = workstreams.find((item) => item.id === getTaskWorkstream(task));
 
   return (
     <article className="rounded-3xl border border-slate-200/80 bg-white/85 p-4 shadow-sm transition hover:border-slate-300">
@@ -27,7 +29,7 @@ export function TaskRow({ task, onStatusChange }: { task: MoveTask; onStatusChan
             <h3 className="font-semibold text-slate-950">{task.title}</h3>
             <StatusBadge value={task.priority} />
           </div>
-          <p className="mt-1 text-sm text-slate-500">{task.phase}{task.dueDate ? ` · Due ${task.dueDate}` : ''}</p>
+          <p className="mt-1 text-sm text-slate-500">{stream?.label ?? 'Workstream'} · {task.phase}{task.dueDate ? ` · Due ${task.dueDate}` : ''}</p>
           <p className="mt-2 text-sm leading-6 text-slate-600">{task.notes}</p>
         </div>
         <div className="flex items-center gap-2">

@@ -4,8 +4,7 @@ import type { AppData, MoveTask } from '../types';
 function mergeTask(seedTask: MoveTask, savedTask?: MoveTask): MoveTask {
   return {
     ...seedTask,
-    ...savedTask,
-    completionCriteria: savedTask?.completionCriteria?.length ? savedTask.completionCriteria : seedTask.completionCriteria,
+    status: savedTask?.status ?? seedTask.status,
   };
 }
 
@@ -17,20 +16,21 @@ export function hydrateAppData(savedData: AppData): AppData {
   return {
     ...initialData,
     ...savedData,
-    meta: { ...initialData.meta, ...savedData.meta },
+    meta: { ...initialData.meta, lastUpdated: savedData.meta?.lastUpdated ?? initialData.meta.lastUpdated },
     tasks: mergeTaskList(initialData.tasks, savedData.tasks),
     afterLanding: mergeTaskList(initialData.afterLanding, savedData.afterLanding),
     phoneChecklist: initialData.phoneChecklist.map((seedItem) => ({
       ...seedItem,
-      ...savedData.phoneChecklist?.find((item) => item.id === seedItem.id),
+      status: savedData.phoneChecklist?.find((item) => item.id === seedItem.id)?.status ?? seedItem.status,
     })),
     documents: initialData.documents.map((seedItem) => ({
       ...seedItem,
-      ...savedData.documents?.find((item) => item.id === seedItem.id),
+      status: savedData.documents?.find((item) => item.id === seedItem.id)?.status ?? seedItem.status,
     })),
     finance: initialData.finance.map((seedItem) => ({
       ...seedItem,
-      ...savedData.finance?.find((item) => item.id === seedItem.id),
+      decision: savedData.finance?.find((item) => item.id === seedItem.id)?.decision ?? seedItem.decision,
+      status: savedData.finance?.find((item) => item.id === seedItem.id)?.status ?? seedItem.status,
     })),
   };
 }

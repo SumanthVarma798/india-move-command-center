@@ -15,8 +15,12 @@ export type WorkstreamId = (typeof workstreams)[number]['id'];
 const taskWorkstreamMap: Record<string, WorkstreamId> = {
   'bio-packet': 'immigration',
   'bio-confirm': 'immigration',
+  'visa-decision-watch': 'immigration',
+  'visa-contingency': 'immigration',
   'phone-payoff': 'phone',
   'phone-unlock': 'phone',
+  'confirm-tello-abroad': 'phone',
+  'collect-att-port-info': 'phone',
   'tello-port': 'phone',
   'otp-tests': 'phone',
   'indian-sim': 'phone',
@@ -35,6 +39,8 @@ const taskWorkstreamMap: Record<string, WorkstreamId> = {
   'drive-cleanup': 'documents',
   'print-docs': 'documents',
   'offline-docs': 'documents',
+  'confirm-july5-itinerary': 'travel',
+  'check-heathrow-transit-after-flight-change': 'travel',
   'sea-airport': 'travel',
   'lhr-transit': 'travel',
   'land-address': 'india',
@@ -55,6 +61,62 @@ export function daysUntil(date: string) {
   const target = new Date(`${date}T00:00:00`);
   today.setHours(0, 0, 0, 0);
   return Math.ceil((target.getTime() - today.getTime()) / 86_400_000);
+}
+
+function parseLocalDate(date: string) {
+  return new Date(`${date}T00:00:00`);
+}
+
+function toIsoDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isWeekday(date: Date) {
+  const day = date.getDay();
+  return day !== 0 && day !== 6;
+}
+
+export function addBusinessDays(startDate: string, businessDays: number) {
+  const date = parseLocalDate(startDate);
+  let added = 0;
+
+  while (added < businessDays) {
+    date.setDate(date.getDate() + 1);
+    if (isWeekday(date)) added += 1;
+  }
+
+  return toIsoDate(date);
+}
+
+export function businessDaysElapsedSince(startDate: string, end = new Date()) {
+  const current = parseLocalDate(startDate);
+  const final = new Date(end);
+  final.setHours(0, 0, 0, 0);
+  let elapsed = 0;
+
+  while (current < final) {
+    current.setDate(current.getDate() + 1);
+    if (current <= final && isWeekday(current)) elapsed += 1;
+  }
+
+  return elapsed;
+}
+
+export function visaDecisionTiming(biometricsDate = '2026-06-09', targetBusinessDays = 15) {
+  const expectedDate = addBusinessDays(biometricsDate, targetBusinessDays);
+  const elapsedBusinessDays = Math.min(businessDaysElapsedSince(biometricsDate), targetBusinessDays);
+  const remainingBusinessDays = Math.max(targetBusinessDays - elapsedBusinessDays, 0);
+
+  return {
+    biometricsDate,
+    expectedDate,
+    elapsedBusinessDays,
+    remainingBusinessDays,
+    calendarDaysUntilExpected: daysUntil(expectedDate),
+  };
 }
 
 export function sortedUrgentTasks(tasks: MoveTask[], limit = 5) {

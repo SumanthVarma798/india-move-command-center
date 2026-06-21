@@ -1,6 +1,6 @@
 # India Move Command Center
 
-A polished shared Supabase-backed React dashboard for the permanent move from the US to India on June 21, 2026.
+A polished shared Supabase-backed React dashboard for the permanent move from the US to India on July 5, 2026.
 
 This site is for status, checklists, reminders, and links only. Do not store passport scans, SSNs, account numbers, recovery codes, passwords, or private documents in this repo or in the browser data. Actual files stay in Google Drive. Secrets stay in a password manager.
 

@@ -16,16 +16,16 @@ export function PhonePage({ data, onPhoneStatusChange }: { data: AppData; onPhon
             <div className="flex justify-between gap-4"><dt className="text-slate-500">Current number</dt><dd className="font-semibold">US number ending 2901</dd></div>
           </dl>
           <div className="mt-6 rounded-3xl bg-blue-50 p-4 text-sm leading-6 text-blue-900">
-            Paying off now gives up the remaining 7 months of phone credits, but unlocks the device and enables a Tello move that should lower the monthly bill materially.
+            Paying off now gives up the remaining 7 months of phone credits, but unlocks the device and enables a Tello move. Because Tello recommends activating eSIM before travel, confirm the post-landing port plan before relying on it.
           </div>
           <div className="mt-6 rounded-3xl bg-slate-50 p-4">
             <h4 className="font-bold">Plan</h4>
             <ol className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
-              <li>1. Pay off phone.</li>
-              <li>2. Unlock AT&T device.</li>
-              <li>3. Port to Tello.</li>
-              <li>4. Enable WiFi calling.</li>
-              <li>5. Test OTPs before departure.</li>
+              <li>1. Confirm with Tello whether activation and porting can happen from India.</li>
+              <li>2. Collect AT&T account number, transfer PIN, account holder name, and address in the password manager.</li>
+              <li>3. Pay off and unlock the iPhone only when the port timing is chosen.</li>
+              <li>4. Port at the last safe moment, leaving time for the 2-hour to 2-business-day transfer window.</li>
+              <li>5. Enable WiFi calling and test OTPs for Chase, Fidelity, Google, and Capital One.</li>
             </ol>
           </div>
         </section>

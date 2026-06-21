@@ -2,11 +2,12 @@ import type { AppData } from '../types';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
 import { TaskRow } from '../components/TaskRow';
-import { allOperationalItems, daysUntil, percentDone, sortedUrgentTasks, workstreamProgress } from '../utils/progress';
+import { allOperationalItems, daysUntil, percentDone, sortedUrgentTasks, visaDecisionTiming, workstreamProgress } from '../utils/progress';
 import type { TaskStatus } from '../types';
 
 export function HomeDashboard({ data, onTaskStatusChange }: { data: AppData; onTaskStatusChange: (id: string, status: TaskStatus) => void }) {
-  const countdown = daysUntil('2026-06-21');
+  const countdown = daysUntil('2026-07-05');
+  const visaTimer = visaDecisionTiming();
   const progress = percentDone(allOperationalItems([...data.tasks, ...data.afterLanding], data.phoneChecklist));
   const priorities = sortedUrgentTasks([...data.tasks, ...data.afterLanding]);
   const streams = workstreamProgress([...data.tasks, ...data.afterLanding], data.phoneChecklist).filter((stream) => stream.total > 0);
@@ -15,12 +16,17 @@ export function HomeDashboard({ data, onTaskStatusChange }: { data: AppData; onT
     <div>
       <section className="mb-8 overflow-hidden rounded-[2.5rem] border border-white/80 bg-white/70 p-6 shadow-glow backdrop-blur sm:p-10">
         <PageHeader
-          kicker="Permanent move · June 21, 2026"
+          kicker="Permanent move · July 5, 2026"
           title="India Move Command Center"
           body="A calm daily dashboard for status, checklists, reminders, and links. Sensitive files stay in Google Drive. Secrets stay in your password manager."
         />
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard label="Days to Departure" value={countdown >= 0 ? countdown : 'Landed'} detail="SEA to LHR to HYD on British Airways." />
+          <MetricCard
+            label="UK Visa Timer"
+            value={visaTimer.remainingBusinessDays > 0 ? `${visaTimer.remainingBusinessDays} workdays` : 'Follow up'}
+            detail={`Biometrics Jun 9 · 15th UK working day ${visaTimer.expectedDate}.`}
+          />
           <MetricCard label="Overall Progress" value={`${progress}%`} detail="Calculated from tasks and OTP checklist completion.">
             <div className="mt-4 h-2 rounded-full bg-slate-200"><div className="h-2 rounded-full bg-slate-950" style={{ width: `${progress}%` }} /></div>
           </MetricCard>
